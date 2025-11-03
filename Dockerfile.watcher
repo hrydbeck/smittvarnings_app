@@ -1,0 +1,22 @@
+FROM r-base:4.2.2
+
+# Install Node.js (Node 18) and other small utilities
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl gnupg2 ca-certificates build-essential git \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install required R packages used by process_json.R
+RUN R -e "install.packages(c('rjson','tidyverse','readr','lubridate'), repos='https://cloud.r-project.org')"
+
+WORKDIR /work
+
+# Copy project files (app will live in /work)
+COPY . /work
+
+# Install node dependencies (package.json provided)
+RUN npm install --no-audit --no-fund
+
+# Default: run the watcher (you can override via docker-compose or docker run)
+CMD ["node", "jasen_out_watcher.js"]
