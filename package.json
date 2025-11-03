@@ -1,0 +1,16 @@
+{
+  "name": "mimosa-pipeline",
+  "version": "0.1.0",
+  "description": "Watcher + R pipeline for processing jasen_out JSONs and running Reportree",
+  "main": "jasen_out_watcher.js",
+  "scripts": {
+    "start": "node jasen_out_watcher.js",
+    "run-reportree": "node run_reportree.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^8.1.0",
+    "node-notifier": "^10.0.0"
+  }
+}

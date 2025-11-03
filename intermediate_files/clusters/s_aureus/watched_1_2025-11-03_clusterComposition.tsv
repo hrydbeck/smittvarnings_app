@@ -1,0 +1,5 @@
+#partition	cluster	cluster_length	samples
+MST-10x1.0	cluster_1	2	20_147_result,20_148_result
+MST-10x1.0	singleton_1	1	20_146_result
+MST-10x1.0	singleton_2	1	20_145_result
+MST-10x1.0	cluster_2	2	20_149_result,20_150_result

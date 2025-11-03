@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.watcher
+    image: mimosa-watcher:latest
+    volumes:
+      - ./:/work
+    working_dir: /work
+    environment:
+      - WATCH_DIR=/work/jasen_out
+      - RESULTS_BASE=/work/intermediate_files/profiles_for_reportree
+    # By default the watcher runs node jasen_out_watcher.js in the container
+    # If you need the watcher to be able to run `docker run` (reportree) from inside
+    # the container then mount the docker socket here (optional / advanced):
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
+
+  # Optional: a stopped R service is available if you want to exec into it
+  r-env:
+    image: r-base:4.2.2
+    command: ["sleep","infinity"]
+    volumes:
+      - ./:/work
+
+# Note:
+# - This compose file builds a single image (watcher) that has both R and Node installed.
+# - The watcher spawns Rscript locally (inside container). Reportree is run via `docker run` in
+#   the included `run_reportree.js` and therefore requires Docker to be available from the host
+#   or the watcher container (see comment about mounting /var/run/docker.sock above).

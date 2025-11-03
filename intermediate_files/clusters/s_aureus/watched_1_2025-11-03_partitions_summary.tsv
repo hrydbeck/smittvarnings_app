@@ -1,0 +1,3 @@
+partition	cluster	cluster_length	samples	Region	n_Region
+MST-10x1.0	cluster_1	2	20_147_result,20_148_result	A (50.0%), C (50.0%) (n = 2)	2
+MST-10x1.0	cluster_2	2	20_149_result,20_150_result	B (100.0%) (n = 2)	1
