@@ -73,8 +73,14 @@ function runRScriptForFiles(files) {
 
   Object.entries(groups).forEach(([subfolder, filesInSub]) => {
     updateCount++;
-    // Use mimosa-style watched_N label format
-    const label = `watched_${updateCount}`;
+
+    // Use the jasen_out subfolder name instead of "watched_N"
+    const label = `${subfolder}_${updateCount}`; // e.g. "regionA_3"
+
+    // If you want *only* the folder name (no counter), use:
+    // const label = subfolder;
+
+    // Or if you prefer suffixes instead of prefixes, you can handle that later in your R script.
 
     console.log(`🧠 Found ${filesInSub.length} new JSON(s) in '${subfolder}' → label=${label}`);
     filesInSub.forEach(f => console.log('  -', f));

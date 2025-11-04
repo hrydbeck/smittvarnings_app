@@ -1,5 +1,0 @@
-20_145_result	20_145_result
-20_149_result	20_149_result,20_150_result
-20_148_result	20_148_result
-20_147_result	20_147_result
-20_146_result	20_146_result
