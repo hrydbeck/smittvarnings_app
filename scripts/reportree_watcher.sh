@@ -34,9 +34,8 @@ while true; do
         continue
       fi
 
-      meta_glob=("$sub"/metadata.tsv.*"${label}"*)
-      meta_files=(""). # ensure variable
-      # pick first matching metadata file
+      # pick first matching metadata file for this label
+      meta=""
       for mf in "$sub"/metadata.tsv.*; do
         if [[ "$mf" == *"${label}"* ]]; then
           meta="$mf"
@@ -54,10 +53,19 @@ while true; do
       mkdir -p "$host_out_dir"
       log "Running ReporTree for $subname/$label"
       # run reportree.py (present in this image)
-      if /usr/local/bin/python3 /app/ReporTree/reportree.py -m "/data/profiles_for_reportree/$subname/$(basename "$meta")" -a "/data/profiles_for_reportree/$subname/$(basename "$profile")" --columns_summary_report Region,n_Region -out "/data/clusters/$subname/$label" --analysis grapetree --method MSTreeV2 -thr 10; then
-        log "ReporTree finished for $subname/$label"
+      # GrapeTree/partitioning_grapetree may create temp files in the current
+      # working directory (it uses tempfile.NamedTemporaryFile(dir='.')). The
+      # application directory in this image may be read-only, so switch to the
+      # mounted /data directory (writable) before running ReporTree.
+      if pushd /data >/dev/null 2>&1; then
+        if /usr/local/bin/python3 /app/ReporTree/reportree.py -m "/data/profiles_for_reportree/$subname/$(basename "$meta")" -a "/data/profiles_for_reportree/$subname/$(basename "$profile")" --columns_summary_report Region,n_Region -out "/data/clusters/$subname/$label" --analysis grapetree --method MSTreeV2 -thr 10; then
+          log "ReporTree finished for $subname/$label"
+        else
+          log "ReporTree failed for $subname/$label — leaving output dir for inspection"
+        fi
+        popd >/dev/null 2>&1
       else
-        log "ReporTree failed for $subname/$label — leaving output dir for inspection"
+        log "Failed to change working directory to /data — cannot run ReporTree"
       fi
     done
   done
