@@ -1,8 +1,11 @@
 #!/usr/bin/env Rscript
 suppressPackageStartupMessages({
   library(rjson)
-  library(tidyverse)
+  # load only the specific tidy packages we need to avoid requiring the full 'tidyverse' meta-package
   library(readr)
+  library(dplyr)
+  library(tibble)
+  library(tidyr)
   library(lubridate)
 })
 
