@@ -54,8 +54,8 @@ function detectNewFiles() {
   console.log('💾 Known files:', Array.from(knownFiles));
   console.log('📄 Current files:', current);
   const currentSet = new Set(current);
+  // compute which files are new (not yet successfully processed)
   const newFiles = current.filter(f => !knownFiles.has(f));
-  current.forEach(f => knownFiles.add(f));
   console.log('🆕 New files:', newFiles);
   return newFiles;
 }
@@ -97,8 +97,16 @@ function runRScriptForFiles(files) {
     rProc.on('close', code => {
       console.log(`✅ Rscript exited with code ${code} for ${label}`);
       if (code === 0) {
-        console.log(`ℹ️ R processing finished for ${label}. run_reportree.js watcher (if running) will pick up the new files.`);
+        // mark files as successfully processed so they are not retried
+        filesInSub.forEach(f => knownFiles.add(f));
+        console.log(`ℹ️ R processing finished for ${label}. Marked ${filesInSub.length} file(s) as processed.`);
+        console.log(`ℹ️ run_reportree.js watcher (if running) will pick up the new files.`);
+      } else {
+        console.error(`❌ Rscript failed for ${label} (exit ${code}). Files will remain unmarked and retried next cycle.`);
       }
+    });
+    rProc.on('error', err => {
+      console.error(`❌ Failed to start Rscript for ${label}:`, err && err.message ? err.message : err);
     });
   });
 }
