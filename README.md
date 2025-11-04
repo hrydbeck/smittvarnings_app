@@ -75,6 +75,62 @@ ls intermediate_files/profiles_for_reportree/s_aureus/
 head -n 40 intermediate_files/clusters/s_aureus/<label>_clusterComposition.tsv
 ```
 
+# Smittvarnings App — local pipeline
+
+Small, local pipeline for converting jasen JSON outputs into cgMLST profiles and running ReporTree clustering.
+
+## Overview
+
+- Inputs: `jasen_out/<subfolder>/*.json` (for example `jasen_out/s_aureus/`).
+- Conversion: `process_json.R` converts JSON(s) into a cgMLST profile and (fake) metadata.
+- Clustering: `reportree` (container) consumes a profile + metadata pair and writes cluster outputs under `intermediate_files/clusters/<sub>/<label>/`.
+
+## What this repo does
+
+- `jasen_out_watcher.js` — Node watcher that scans `jasen_out` subfolders for new JSON files and runs `process_json.R` to produce profiles and metadata.
+- `process_json.R` — Rscript that prefers cgMLST allele blocks, normalizes missing allele calls to "0", and writes deterministic allele columns into `intermediate_files/profiles_for_reportree/<sub>/`.
+- `reportree-service` / `scripts/reportree_watcher.sh` — runs ReporTree inside the official `insapathogenomics/reportree` image and writes cluster outputs into `intermediate_files/clusters/` (no host Docker socket required).
+- `reset_workspace.sh` and `simulate_jasen_output.sh` — helpers to create a clean, deterministic test run using the fixtures in `backup_jasen_out/`.
+
+## Prerequisites
+
+- Linux / WSL or macOS with Docker.
+- Docker & Docker Compose (compose v2 recommended).
+- Node.js (the watcher and helper scripts are tested with Node 18).
+- R (Rscript). The watcher image contains the R runtime and installs these R packages used by `process_json.R`:
+  - `rjson`, `readr`, `lubridate`, `tibble`, `dplyr`, `tidyr`, `purrr`.
+
+## Quick start (compose-based, recommended)
+
+1. Reset the workspace and copy deterministic test fixtures:
+
+```bash
+sh scripts/reset_workspace.sh --wipe
+sh scripts/simulate_jasen_output.sh
+```
+
+2. Build and start the watcher + reportree service:
+
+```bash
+docker compose up -d --build watcher reportree-service
+```
+
+3. Follow logs to watch conversion and clustering:
+
+```bash
+docker compose logs -f watcher reportree-service --no-color
+```
+
+## Try it — check outputs
+
+```bash
+# List generated profiles
+ls intermediate_files/profiles_for_reportree/s_aureus/
+
+# Inspect cluster composition for the latest label (replace <label> with the actual file prefix)
+head -n 40 intermediate_files/clusters/s_aureus/<label>_clusterComposition.tsv
+```
+
 ## Manual / single-shot commands
 
 Convert JSONs to profiles directly (single run):
@@ -94,7 +150,7 @@ docker run --rm -v $(pwd)/intermediate_files:/data -w /data --user $(id -u):$(id
 
 ## Important notes
 
-- Canonical fixtures: treat `backup_jasen_out/` as read-only test fixtures. Use `simulate_jasen_output.sh` to copy them into `jasen_out/` when testing.
+- Canonical fixtures: treat `backup_jasen_out/` as read-only test fixtures. Use `scripts/simulate_jasen_output.sh` to copy them into `jasen_out/` when testing.
 - Determinism: the watcher sorts subfolders and filenames before invoking `process_json.R` so file ordering is stable.
 - Timezones: the watcher sets `TZ=UTC` for spawned R processes if unset to avoid local inconsistencies.
 - Permissions: `reportree` writes files under `intermediate_files/clusters/`. The compose `reportree-service` approach avoids mounting the host Docker socket and therefore avoids creating root-owned host files in normal operation.
