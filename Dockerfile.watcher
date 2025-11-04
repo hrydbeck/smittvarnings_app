@@ -1,14 +1,17 @@
-FROM r-base:4.2.2
+FROM rocker/r-ver:4.2.2
 
 # Install Node.js (Node 18) and other small utilities
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl gnupg2 ca-certificates build-essential git \
+RUN apt-get update --allow-releaseinfo-change || true \
+    && apt-get install -y --no-install-recommends ca-certificates gnupg2 curl build-essential git \
+    # system libraries needed to build some R packages (libcurl, xml, ssl)
+    && apt-get install -y --no-install-recommends libcurl4-openssl-dev libxml2-dev libssl-dev libgit2-dev \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages used by process_json.R
-RUN R -e "install.packages(c('rjson','tidyverse','readr','lubridate'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages(c('rjson','readr','lubridate','tibble','dplyr','tidyr','purrr'), repos='https://cloud.r-project.org')"
 
 WORKDIR /work
 
