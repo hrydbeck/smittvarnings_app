@@ -10,7 +10,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "glob": "^8.1.0",
-    "node-notifier": "^10.0.0"
+    "node-notifier": "^10.0.0",
+    "nodemailer": "^7.0.10"
   }
 }

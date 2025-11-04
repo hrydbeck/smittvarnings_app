@@ -30,3 +30,9 @@ function checkClusters(clusterDir, MST_THRESHOLD = 10) {
 }
 
 module.exports = { checkClusters };
+
+if (require.main === module) {
+  const workdir = process.argv[2] || path.resolve(__dirname, 'intermediate_files', 'clusters');
+  console.log(`🔍 Checking clusters in ${workdir}`);
+  checkClusters(workdir);
+}
