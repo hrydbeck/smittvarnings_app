@@ -58,6 +58,12 @@ async function scanClusterComposition(sub, label) {
 // Run Reportree via Docker
 function runReportree(metaPath, allelePath, label, sub) {
   const absoluteResultsBase = path.resolve(__dirname, 'intermediate_files');
+  // If launched inside a container that will call the host Docker daemon, callers
+  // may set HOST_RESULTS_BASE to the host absolute path that should be mounted
+  // into the Reportree container. This avoids trying to mount a container-local
+  // path as a host volume (which fails when docker is invoked from inside a
+  // container).
+  const hostResultsBase = process.env.HOST_RESULTS_BASE || absoluteResultsBase;
 
   // Prepare output directories
   const hostOutputDir = path.join(absoluteResultsBase, 'clusters', sub);
@@ -71,7 +77,7 @@ function runReportree(metaPath, allelePath, label, sub) {
 
   const cmd = [
     'docker run --rm',
-    `-v ${absoluteResultsBase}:/data`,
+    `-v ${hostResultsBase}:/data`,
     `-w /data`,
     `--user ${uid}:${gid}`,
     'insapathogenomics/reportree',

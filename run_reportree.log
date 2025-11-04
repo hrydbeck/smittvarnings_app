@@ -1,5 +1,98 @@
 nohup: ignoring input
+[dotenv@17.2.3] injecting env (6) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
 👀 Watching for new R output files in /home/halfdan/dev_web_app/smittvarnings_app/intermediate_files/profiles_for_reportree
-⏳ No new R output files detected (2:41:13 PM)
-⏳ No new R output files detected (2:41:42 PM)
-⏳ No new R output files detected (2:42:12 PM)
+🚀 Running Reportree for s_aureus_1_2025-11-04 (subfolder=s_aureus)
+▶️ docker run --rm -v /home/halfdan/dev_web_app/smittvarnings_app/intermediate_files:/data -w /data --user 1000:1000 insapathogenomics/reportree reportree.py -m /data/profiles_for_reportree/s_aureus/metadata.tsv.s_aureus_1_2025-11-04_2025-11-04 -a /data/profiles_for_reportree/s_aureus/cgmlst.profile.s_aureus_1_2025-11-04_2025-11-04 --columns_summary_report Region,n_Region -out /data/clusters/s_aureus/s_aureus_1_2025-11-04 --analysis grapetree --method MSTreeV2 -thr 10
+Distance matrix output: done
+Distance MSTree2 output: done
+((20_149_result:0,20_150_result:0):1708,20_145_result:1422,20_146_result:227,20_148_result:0,20_147_result:0);
+-------------------- partitioning_grapetree.py --------------------
+
+version 1.6.0 last updated on 2025-10-21 
+
+/app/ReporTree/scripts/partitioning_grapetree.py -a /data/profiles_for_reportree/s_aureus/cgmlst.profile.s_aureus_1_2025-11-04_2025-11-04 -o /data/clusters/s_aureus/s_aureus_1_2025-11-04 --method MSTreeV2 --missing 0 --n_proc 5 -thr 10 -d 1.0 --site-inclusion 0.0 -pct_thr none --loci-called 0.0 --missing-code 0 -l none 
+
+start: 2025-11-04 13:02:57.240098
+Cleaning the profile matrix using a threshold of >0.0 alleles/positions called...
+	From the 6 samples, 6 were kept in the profile matrix.
+Getting the pairwise distance matrix with cgmlst-dists (if your profile matrix is too big, this will be done in chunks of 2000 alleles/positions)...
+Running GrapeTree...
+/usr/local/bin/python3 /app/ReporTree/scripts/GrapeTree/grapetree.py -p /data/clusters/s_aureus/s_aureus_1_2025-11-04_flt_samples_matrix.tsv -m MSTreeV2 -o /data/clusters/s_aureus/s_aureus_1_2025-11-04 --missing 0 --n_proc 5
+
+Processing clustering threshold...
+Getting redundant sample information...
+Defining clusters...
+	Calculating clustering in range 10 11 with a distance of 1.0
+Creating cluster composition file...
+Creating sample partitions file...
+
+partitioning_grapetree.py is done!
+
+End: 2025-11-04 13:02:59.599877
+Time elapsed: 0:00:02.359779
+
+-------------------- metadata_report.py --------------------
+
+version 1.4.0 last updated on 2025-10-22 
+
+/app/ReporTree/scripts/metadata_report.py -m /data/profiles_for_reportree/s_aureus/metadata.tsv.s_aureus_1_2025-11-04_2025-11-04 -p /data/clusters/s_aureus/s_aureus_1_2025-11-04_partitions.tsv -o /data/clusters/s_aureus/s_aureus_1_2025-11-04 --columns_summary_report Region,n_Region --partitions2report all --metadata2report none -f  --frequency-matrix no --count-matrix no 
+
+Getting information from the partitions table: /data/clusters/s_aureus/s_aureus_1_2025-11-04_partitions.tsv
+Getting metadata information...
+		Samples present in partitions table but missing in metadata table: 
+		Samples not present in partitions table but present in metadata table: 
+Getting summary stats for the variables specified at '--partitions2report'...
+Getting summary stats for the variables specified at '--metadata2report'...
+metadata_report.py is done!
+
+******************** running reportree.py ********************
+
+version 2.6.0 last updated on 2025-10-22
+
+/app/ReporTree/reportree.py -m /data/profiles_for_reportree/s_aureus/metadata.tsv.s_aureus_1_2025-11-04_2025-11-04 -a /data/profiles_for_reportree/s_aureus/cgmlst.profile.s_aureus_1_2025-11-04_2025-11-04 --columns_summary_report Region,n_Region -out /data/clusters/s_aureus/s_aureus_1_2025-11-04 --analysis grapetree --method MSTreeV2 -thr 10
+start: 2025-11-04 13:02:57.005852
+
+Profiles file provided -> will run partitioning_grapetree.py:
+
+
+------------------------------------------------------------
+
+ReporTree is done! If you found any issue please contact us!!
+
+
+End: 2025-11-04 13:02:59.888642
+Time elapsed: 0:00:02.882790
+
+This is cgmlst-dists 0.4.0
+Loaded row 0Loaded row 1Loaded row 2Loaded row 3Loaded row 4Loaded row 5Loaded row 6Loaded 6 samples x 1861 allele calls
+Calculating distances: 16.67%Calculating distances: 33.33%Calculating distances: 50.00%Calculating distances: 66.67%Calculating distances: 83.33%Calculating distances: 100.00%
+Writing distance matrix to stdout...
+
+Done.
+/usr/local/lib/python3.8/site-packages/scipy/__init__.py:143: UserWarning: A NumPy version >=1.19.5 and <1.27.0 is required for this version of SciPy (detected version 1.19.2)
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+/usr/local/lib/python3.8/site-packages/numba/core/ir_utils.py:2152: NumbaPendingDeprecationWarning: 
+Encountered the use of a type that is scheduled for deprecation: type 'reflected list' found for argument 'a' of function 'contemporary'.
+
+For more information visit https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
+
+File "../app/ReporTree/scripts/GrapeTree/module/MSTrees.py", line 49:
+@jit(nopython=True)
+def contemporary(a,b,c, n_loci) :
+^
+
+  warnings.warn(NumbaPendingDeprecationWarning(msg, loc=loc))
+
+✅ Reportree finished for s_aureus_1_2025-11-04
+🔍 Scanning cluster composition for s_aureus/s_aureus_1_2025-11-04
+📝 Cluster files found: /home/halfdan/dev_web_app/smittvarnings_app/intermediate_files/clusters/s_aureus/s_aureus_1_2025-11-04_clusterComposition.tsv
+📄 Reading cluster file: /home/halfdan/dev_web_app/smittvarnings_app/intermediate_files/clusters/s_aureus/s_aureus_1_2025-11-04_clusterComposition.tsv
+⚠️ Multi-sample cluster detected: 20_147_result and 20_148_result (threshold 10)
+ALERT: Mimosa Alert: Multi-sample cluster detected 🚨
+<p>Samples 20_147_result and 20_148_result differ by less than 10 variants. Risk for outbreak!</p>
+📧 Email sent: 250 2.0.0 OK  1762261384 2adb3069b0e04-5943444c5f5sm715498e87.92 - gsmtp
+⚠️ Multi-sample cluster detected: 20_149_result and 20_150_result (threshold 10)
+ALERT: Mimosa Alert: Multi-sample cluster detected 🚨
+<p>Samples 20_149_result and 20_150_result differ by less than 10 variants. Risk for outbreak!</p>
+📧 Email sent: 250 2.0.0 OK  1762261385 2adb3069b0e04-594343b7b5esm738149e87.48 - gsmtp
+✅ Finished scanning clusters for s_aureus/s_aureus_1_2025-11-04
