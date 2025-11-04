@@ -1,0 +1,43 @@
+name: integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
+      - name: Reset workspace
+        run: |
+          chmod +x ./reset_workspace.sh
+          ./reset_workspace.sh --wipe
+      - name: Build and start services
+        run: |
+          docker compose up -d --build watcher reportree-service
+      - name: Simulate jasen output
+        run: |
+          chmod +x ./simulate_jasen_output.sh
+          ./simulate_jasen_output.sh
+      - name: Wait for processing
+        run: |
+          # wait up to 120s for clusters to appear
+          for i in {1..12}; do
+            if ls intermediate_files/clusters/s_aureus/* 1>/dev/null 2>&1; then
+              echo "Clusters produced"
+              break
+            fi
+            sleep 10
+          done
+      - name: Assert clusters present
+        run: |
+          ls -la intermediate_files/clusters/s_aureus || (echo "No clusters" && exit 1)
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

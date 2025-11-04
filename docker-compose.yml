@@ -24,6 +24,21 @@ services:
     volumes:
       - ./:/work
 
+  # reportree service: runs ReporTree directly inside its container. It
+  # mounts the host `./intermediate_files` to `/data` and executes a small
+  # watcher script that invokes reportree.py for new profile+metadata pairs.
+  reportree-service:
+    image: insapathogenomics/reportree:latest
+    volumes:
+      - ./:/work:ro
+      - ./intermediate_files:/data
+    working_dir: /work
+    user: "1000:1000"
+    command: ["/bin/bash", "/work/scripts/reportree_watcher.sh"]
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+
 # Note:
 # - This compose file builds a single image (watcher) that has both R and Node installed.
 # - The watcher spawns Rscript locally (inside container). Reportree is run via `docker run` in
