@@ -22,4 +22,4 @@ COPY . /work
 RUN npm install --no-audit --no-fund
 
 # Default: run the watcher (you can override via docker-compose or docker run)
-CMD ["node", "jasen_out_watcher.js"]
+CMD ["node", "bin/jasen_out_watcher.js"]
