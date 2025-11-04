@@ -1,0 +1,22 @@
+# Ignore jasen outputs and pipeline intermediate files (do not commit sample input or generated outputs)
+/jasen_out/
+/intermediate_files/
+
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
