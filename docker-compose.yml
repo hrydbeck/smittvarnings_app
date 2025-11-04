@@ -11,11 +11,6 @@ services:
     environment:
       - WATCH_DIR=/work/jasen_out
       - RESULTS_BASE=/work/intermediate_files/profiles_for_reportree
-    # By default the watcher runs node jasen_out_watcher.js in the container
-    # If you need the watcher to be able to run `docker run` (reportree) from inside
-    # the container then mount the docker socket here (optional / advanced):
-    # volumes:
-    #   - /var/run/docker.sock:/var/run/docker.sock
 
   # Optional: a stopped R service is available if you want to exec into it
   r-env:
@@ -32,7 +27,9 @@ services:
     volumes:
       - ./:/work:ro
       - ./intermediate_files:/data
-    working_dir: /work
+    # Use /data as the working directory so tools that create temporary files
+    # in the CWD (e.g. GrapeTree) can write into the mounted, writable folder.
+    working_dir: /data
     user: "1000:1000"
     command: ["/bin/bash", "/work/scripts/reportree_watcher.sh"]
     restart: unless-stopped
