@@ -98,6 +98,24 @@ Key ideas
 
     The alert module will still produce local desktop/console notifications even when SMTP is not configured; email sending requires `nodemailer` to be available in the runtime image.
 
+  Quick test (send a test email)
+
+  - A small helper script is included at `scripts/send_test_email.js`. It loads your local `.env` (via dotenv) and sends a single test message to `ALERT_EMAIL`.
+
+  - Run the test safely with:
+
+    ```bash
+    node scripts/send_test_email.js
+    ```
+
+    Or (explicitly use dotenv loader):
+
+    ```bash
+    node -r dotenv/config scripts/send_test_email.js
+    ```
+
+  - This avoids sourcing `.env` in your shell (which can break when values contain spaces). The script prints a short success or failure message.
+
   ### Running containers as your user
 
   Compose supports substituting environment variables into the `user:` field. Set `LOCAL_UID` and `LOCAL_GID` when starting compose to have containers write files as your host user. If unset, services fall back to UID/GID 1000.
