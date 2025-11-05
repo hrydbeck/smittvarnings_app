@@ -21,5 +21,11 @@ COPY . /work
 # Install node dependencies (package.json provided)
 RUN npm install --no-audit --no-fund
 
+# Add a small entrypoint that can create a runtime user matching the host UID/GID
+# so files created under mounted volumes are owned by the host user.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Default: run the watcher (you can override via docker-compose or docker run)
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "bin/jasen_out_watcher.js"]
