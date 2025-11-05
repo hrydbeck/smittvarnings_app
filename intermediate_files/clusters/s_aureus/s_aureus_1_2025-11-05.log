@@ -1,0 +1,25 @@
+
+******************** running reportree.py ********************
+
+version 2.6.0 last updated on 2025-10-22
+
+/app/ReporTree/reportree.py -m /data/profiles_for_reportree/s_aureus/metadata.tsv.s_aureus_1_2025-11-05_2025-11-05 -a /data/profiles_for_reportree/s_aureus/cgmlst.profile.s_aureus_1_2025-11-05_2025-11-05 --columns_summary_report Region,n_Region -out /data/clusters/s_aureus/s_aureus_1_2025-11-05 --analysis grapetree --method MSTreeV2 -thr 10
+start: 2025-11-05 09:04:29.228828
+
+Profiles file provided -> will run partitioning_grapetree.py:
+
+
+-------------------- partitioning_grapetree.py --------------------
+
+version 1.6.0 last updated on 2025-10-21 
+
+/app/ReporTree/scripts/partitioning_grapetree.py -a /data/profiles_for_reportree/s_aureus/cgmlst.profile.s_aureus_1_2025-11-05_2025-11-05 -o /data/clusters/s_aureus/s_aureus_1_2025-11-05 --method MSTreeV2 --missing 0 --n_proc 5 -thr 10 -d 1.0 --site-inclusion 0.0 -pct_thr none --loci-called 0.0 --missing-code 0 -l none 
+
+start: 2025-11-05 09:04:29.463183
+Cleaning the profile matrix using a threshold of >0.0 alleles/positions called...
+	From the 6 samples, 6 were kept in the profile matrix.
+Getting the pairwise distance matrix with cgmlst-dists (if your profile matrix is too big, this will be done in chunks of 2000 alleles/positions)...
+Running GrapeTree...
+/usr/local/bin/python3 /app/ReporTree/scripts/GrapeTree/grapetree.py -p /data/clusters/s_aureus/s_aureus_1_2025-11-05_flt_samples_matrix.tsv -m MSTreeV2 -o /data/clusters/s_aureus/s_aureus_1_2025-11-05 --missing 0 --n_proc 5
+
+Something went wrong while running GrapeTree :-( Please check your input matrix and your filtering options... 
