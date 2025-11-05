@@ -49,6 +49,20 @@ else
     fi
 fi
 
+echo "Clearing logs..."
+mkdir -p logs
+if rm -rf logs/* 2>/dev/null; then
+    :
+else
+    echo "⚠️ Could not remove some logs due to permissions. Attempting to fix ownership..."
+    if command -v sudo >/dev/null 2>&1; then
+        sudo chown -R $(id -u):$(id -g) logs || true
+        sudo rm -rf logs/* || true
+    else
+        echo "No sudo available. Please remove logs/ contents manually if needed."
+    fi
+fi
+
 echo "Recreating directory structure..."
 mkdir -p jasen_out
 mkdir -p intermediate_files/profiles_for_reportree
@@ -67,6 +81,6 @@ echo "Reset complete. Directory structure:"
 tree jasen_out intermediate_files || true
 
 echo -e "\nTo start the watchers:"
-echo "1. Start reportree watcher:  node bin/run_reportree.js > run_reportree.log 2>&1 &"
-echo "2. Start jasen watcher:      node bin/jasen_out_watcher.js > jasen_out_watcher.log 2>&1 &"
-echo "3. Monitor logs:             tail -f jasen_out_watcher.log run_reportree.log"
+echo "1. Start reportree watcher:  node bin/run_reportree.js > logs/run_reportree.log 2>&1 &"
+echo "2. Start jasen watcher:      node bin/jasen_out_watcher.js > logs/jasen_out_watcher.log 2>&1 &"
+echo "3. Monitor logs:             tail -f logs/jasen_out_watcher.log logs/run_reportree.log"

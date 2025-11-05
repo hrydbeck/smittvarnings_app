@@ -34,5 +34,7 @@ echo "Done. Current jasen_out contents:"
 ls -la "$DST"
 
 echo "If you want the watchers to pick this up automatically, start them:" 
-echo "nohup node bin/run_reportree.js > run_reportree.log 2>&1 &"
-echo "nohup node bin/jasen_out_watcher.js > jasen_out_watcher.log 2>&1 &"
+echo "Preparing logs directory..."
+mkdir -p "$(cd "$(dirname "$0")/.." && pwd)/logs" || true
+echo "nohup node bin/run_reportree.js > logs/run_reportree.log 2>&1 &"
+echo "nohup node bin/jasen_out_watcher.js > logs/jasen_out_watcher.log 2>&1 &"
