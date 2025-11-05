@@ -85,6 +85,19 @@ Key ideas
   - Determinism: the watcher sorts subfolders and filenames before invoking `R/process_json.R` so file ordering is stable.
   - Timezones: the watcher sets `TZ=UTC` for spawned R processes if unset to avoid local inconsistencies.
 
+  - Email alerts: the evaluator can send email when SMTP configuration is provided. To enable email alerts set the following environment variables (one way is a `.env` file in the repo root):
+
+    ```ini
+    SMTP_HOST=smtp.example.org
+    SMTP_PORT=587
+    SMTP_USER=optional_user
+    SMTP_PASS=optional_pass
+    SMTP_FROM=smittvarnings@example.org
+    ALERT_EMAIL=you@example.org
+    ```
+
+    The alert module will still produce local desktop/console notifications even when SMTP is not configured; email sending requires `nodemailer` to be available in the runtime image.
+
   ### Running containers as your user
 
   Compose supports substituting environment variables into the `user:` field. Set `LOCAL_UID` and `LOCAL_GID` when starting compose to have containers write files as your host user. If unset, services fall back to UID/GID 1000.
