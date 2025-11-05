@@ -3,7 +3,7 @@ set -eu pipefail
 
 # Copy a small set of initial fixtures from backup_jasen_out into jasen_out
 BASEDIR="$(cd "$(dirname "$0")/.." && pwd)"
-SRC_DIR="$BASEDIR/backup_jasen_out/s_aureus"
+SRC_DIR="$BASEDIR/backup_jasen_out/s_aureus_initial"
 DST_DIR="$BASEDIR/jasen_out/s_aureus"
 
 DEFAULT_IDS=(145 146 147)

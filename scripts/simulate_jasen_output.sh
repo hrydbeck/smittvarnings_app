@@ -4,7 +4,7 @@ set -eu pipefail
 # simulate jasen output by copying the backup s_aureus folder into jasen_out
 # This script lives in `scripts/`, so BASEDIR is the repo root.
 BASEDIR="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$BASEDIR/backup_jasen_out/s_aureus"
+SRC="$BASEDIR/backup_jasen_out/s_aureus_initial"
 DST="$BASEDIR/jasen_out"
 
 if [ ! -d "$SRC" ]; then
