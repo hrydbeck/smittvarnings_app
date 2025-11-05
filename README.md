@@ -49,8 +49,8 @@ Small, local pipeline for converting jasen JSON outputs into cgMLST profiles and
 1. Reset the workspace and copy deterministic test fixtures:
 
 ```bash
-sh reset_workspace.sh --wipe
-sh simulate_jasen_output.sh
+sh scripts/reset_workspace.sh --wipe
+sh scripts/simulate_jasen_output.sh
 ```
 
 2. Build and start the watcher + reportree service:
