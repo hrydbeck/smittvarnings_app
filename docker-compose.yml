@@ -8,6 +8,10 @@ services:
     volumes:
       - ./:/work
     working_dir: /work
+    # Run the watcher processes as the calling host user by default.
+    # Set LOCAL_UID and LOCAL_GID in your environment (or in a .env file) to override.
+    # Example: LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) docker compose up
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     environment:
       - WATCH_DIR=/work/jasen_out
       - RESULTS_BASE=/work/intermediate_files/profiles_for_reportree
@@ -30,7 +34,9 @@ services:
     # Use /data as the working directory so tools that create temporary files
     # in the CWD (e.g. GrapeTree) can write into the mounted, writable folder.
     working_dir: /data
-    user: "1000:1000"
+    # Ensure reportree writes files as the host user where possible. Use the same
+    # environment variables for UID/GID substitution as for the watcher.
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     command: ["/bin/bash", "/work/scripts/reportree_watcher.sh"]
     restart: unless-stopped
     cap_drop:

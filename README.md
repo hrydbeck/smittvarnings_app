@@ -155,6 +155,25 @@ docker run --rm -v $(pwd)/intermediate_files:/data -w /data --user $(id -u):$(id
 - Timezones: the watcher sets `TZ=UTC` for spawned R processes if unset to avoid local inconsistencies.
 - Permissions: `reportree` writes files under `intermediate_files/clusters/`. The compose `reportree-service` approach avoids mounting the host Docker socket and therefore avoids creating root-owned host files in normal operation.
 
+### Running containers as your user
+
+By default the Compose file will attempt to run the watcher and `reportree-service` containers as your host user. Compose reads `LOCAL_UID` and `LOCAL_GID` environment variables and substitutes them into the `user:` field. If these are not set, the services fall back to UID/GID 1000.
+
+Set them on the command line when starting compose, for example:
+
+```bash
+LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) docker compose up -d --build watcher reportree-service
+```
+
+Alternatively create a `.env` file in the repo root containing:
+
+```
+LOCAL_UID=1000
+LOCAL_GID=1000
+```
+
+This helps avoid files being written as `root` on the host when containers create output under `intermediate_files/` or `logs/`.
+
 ## Troubleshooting
 
 - Missing R packages inside the watcher image: rebuild the watcher image (`docker compose up -d --build watcher`) so the Dockerfile installs the required R packages.
