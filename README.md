@@ -38,6 +38,13 @@ Key ideas
   sh scripts/reset_workspace.sh --wipe
   sh scripts/simulate_jasen_output.sh
   ```
+
+  New: separate simulation helpers
+
+  - `scripts/simulate_jasen_initial.sh` — copy a deterministic initial set of fixtures (defaults: 145,146,147). Use `./scripts/simulate_jasen_initial.sh` or pass ids: `./scripts/simulate_jasen_initial.sh 145 146`.
+  - `scripts/simulate_jasen_additional.sh` — copy an additional set (defaults: 148,149,150). Use `./scripts/simulate_jasen_additional.sh` or pass ids.
+
+  Run the initial runner with `npm run run-reportree:initial` and the additional mode with `npm run run-reportree:additional`. These map to `bin/run_reportree_initial_samples.js` and `bin/run_reportree_additional_samples.js` respectively.
   ````
 
   2. Build and start the watcher + reportree service (run as your host UID/GID — see note below):

@@ -5,7 +5,8 @@
   "main": "bin/jasen_out_watcher.js",
   "scripts": {
     "start": "node bin/jasen_out_watcher.js",
-    "run-reportree": "node bin/run_reportree.js"
+    "run-reportree:initial": "node bin/run_reportree_initial_samples.js",
+    "run-reportree:additional": "node bin/run_reportree_additional_samples.js"
   },
   "author": "",
   "license": "MIT",
@@ -13,6 +14,6 @@
     "dotenv": "^17.2.3",
     "glob": "^8.1.0",
     "node-notifier": "^10.0.0",
-    "nodemailer": "^7.0.10"
+    "nodemailer": "^6.10.1"
   }
 }
