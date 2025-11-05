@@ -7,7 +7,7 @@ RUN apt-get update --allow-releaseinfo-change || true \
     && apt-get install -y --no-install-recommends libcurl4-openssl-dev libxml2-dev libssl-dev libgit2-dev \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get update \
-    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get install -y --no-install-recommends nodejs gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages used by process_json.R

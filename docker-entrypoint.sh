@@ -25,8 +25,9 @@ if [ -n "$LOCAL_UID" ] && [ "$LOCAL_UID" != "0" ]; then
   mkdir -p /work /work/intermediate_files /work/jasen_out /work/logs || true
   chown -R "$LOCAL_UID":"${LOCAL_GID:-$LOCAL_UID}" /work || true
 
-  # Execute the command as the created user
-  exec su -s /bin/sh appuser -c "$*"
+  # Execute the command as the created user using gosu for a clean exec
+  # gosu preserves signals and avoids spawning a shell process.
+  exec gosu appuser "$@"
 else
   # No special UID requested — run the command as root
   exec "$@"
