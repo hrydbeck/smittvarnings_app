@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
-const { checkClusters } = require('../evaluate_alert_by_clust_dist_email');
+const { checkClusters } = require('../evaluate_alert_by_clust_dist');
 
 const repoRoot = path.resolve(__dirname, '..');
 const resultsBase = path.resolve(repoRoot, 'intermediate_files', 'profiles_for_reportree');
