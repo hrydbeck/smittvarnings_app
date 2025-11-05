@@ -136,6 +136,18 @@ Key ideas
   sudo chown -R $(id -u):$(id -g) intermediate_files jasen_out logs
   ```
 
+  Creating a local `.env` from `.env.example`
+
+  - To enable email alerts or set `LOCAL_UID`/`LOCAL_GID` for Docker compose, copy the example and edit it locally (do not commit):
+
+    ```bash
+    cp .env.example .env
+    # edit .env with your secrets and preferences
+    chmod 600 .env
+    ```
+
+  - The repository already contains `.env` in `.gitignore`, so your local `.env` will remain untracked. If you ever accidentally commit secrets, rotate the secret and contact collaborators.
+
   CI / integration
 
   - A basic integration workflow lives at `.github/workflows/integration.yml`. It resets the workspace, builds the images, copies fixtures, and verifies cluster outputs. You may need to tune timeouts on GitHub Actions runners because building images and running containers can take several minutes.
