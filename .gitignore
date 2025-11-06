@@ -25,3 +25,7 @@ logs/
 
 # PID files created by demo/watch scripts (nohup/daemon helpers)
 *.pid
+
+# Local backups used for deterministic demos and manual restores
+backup_jasen_out/
+backups/
