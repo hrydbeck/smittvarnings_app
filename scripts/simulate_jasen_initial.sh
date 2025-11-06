@@ -1,19 +1,12 @@
 #!/bin/bash
-set -eu pipefail
+# Fail fast and make pipelines safe. Use 'o' form to avoid 'pipefail' being
+# interpreted as a positional parameter in some shells.
+set -euo pipefail
 
-# Copy a small set of initial fixtures from backup_jasen_out into jasen_out
+# Copy the whole initial fixtures directory into jasen_out (all *_result.json)
 BASEDIR="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_DIR="$BASEDIR/backup_jasen_out/s_aureus_initial"
 DST_DIR="$BASEDIR/jasen_out/s_aureus"
-
-DEFAULT_IDS=(145 146 147)
-
-ids=()
-if [ "$#" -gt 0 ]; then
-  ids=("$@")
-else
-  ids=("${DEFAULT_IDS[@]}")
-fi
 
 echo "Preparing jasen_out (initial) -> $DST_DIR"
 mkdir -p "$DST_DIR"
@@ -28,13 +21,8 @@ mkdir -p "$BASEDIR/jasen_out"
 rm -rf "$DST_DIR" || true
 mkdir -p "$DST_DIR"
 
-for id in "${ids[@]}"; do
-  fname="20_${id}_result.json"
-  src="$SRC_DIR/$fname"
-  if [ ! -f "$src" ]; then
-    echo "Warning: fixture not found: $src — skipping"
-    continue
-  fi
+for src in "$SRC_DIR"/*_result.json; do
+  [ -e "$src" ] || continue
   echo "Copying $src -> $DST_DIR/"
   cp -a "$src" "$DST_DIR/"
 done

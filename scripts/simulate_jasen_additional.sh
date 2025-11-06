@@ -1,19 +1,12 @@
 #!/bin/bash
-set -eu pipefail
+# Fail fast and make pipelines safe. Use the `o` form to ensure `pipefail`
+# is parsed as an option and not accidentally as a positional argument.
+set -euo pipefail
 
-# Copy a small set of additional fixtures from backup_jasen_out into jasen_out
+# Copy all additional fixtures from the backup into jasen_out (all *_result.json)
 BASEDIR="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_DIR="$BASEDIR/backup_jasen_out/s_aureus_additional"
 DST_DIR="$BASEDIR/jasen_out/s_aureus"
-
-DEFAULT_IDS=(148 149 150)
-
-ids=()
-if [ "$#" -gt 0 ]; then
-  ids=("$@")
-else
-  ids=("${DEFAULT_IDS[@]}")
-fi
 
 echo "Preparing jasen_out (additional) -> $DST_DIR"
 mkdir -p "$DST_DIR"
@@ -23,13 +16,8 @@ pkill -f "node bin/jasen_out_watcher.js" || true
 pkill -f "node bin/run_reportree" || true
 
 echo "Copying additional fixtures into $DST_DIR"
-for id in "${ids[@]}"; do
-  fname="20_${id}_result.json"
-  src="$SRC_DIR/$fname"
-  if [ ! -f "$src" ]; then
-    echo "Warning: fixture not found: $src — skipping"
-    continue
-  fi
+for src in "$SRC_DIR"/*_result.json; do
+  [ -e "$src" ] || continue
   echo "Copying $src -> $DST_DIR/"
   cp -a "$src" "$DST_DIR/"
 done
