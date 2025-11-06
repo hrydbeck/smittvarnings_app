@@ -22,11 +22,18 @@ function findPairs() {
     const metas = files.filter(f => f.startsWith('metadata.tsv.'));
 
     profiles.forEach(profile => {
-      const m = profile.match(/^cgmlst\.profile\.(.+)_\d{4}-\d{2}-\d{2}$/);
+      // Expect filenames: cgmlst.profile.<sub>_<YYYY-MM-DD>_<n>
+      // and metadata: metadata.tsv.<sub>_<YYYY-MM-DD>_<n>
+      const m = profile.match(/^cgmlst\.profile\.([A-Za-z0-9_]+)_(\d{4}-\d{2}-\d{2})_(\d+)$/);
       if (!m) return;
-      const label = m[1];
-      const meta = metas.find(mm => mm.includes(label));
-      if (meta) pairs.push({ sub, label, profile, meta });
+      const fileSub = m[1];
+      // ensure the profile's subfolder matches the expected sub
+      if (fileSub !== sub) return;
+      const datePart = m[2];
+      const seq = m[3];
+      const label = `${datePart}_${seq}`;
+      const expectedMeta = `metadata.tsv.${fileSub}_${datePart}_${seq}`;
+      if (metas.includes(expectedMeta)) pairs.push({ sub, label, profile, meta: expectedMeta });
     });
   }
   return pairs;

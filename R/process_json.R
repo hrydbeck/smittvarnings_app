@@ -38,9 +38,21 @@ output_folder <- file.path(results_base, input_folder_name)
 if (!dir.exists(output_folder)) dir.create(output_folder, recursive = TRUE)
 
 date_str <- format(Sys.Date(), "%Y-%m-%d")
-# Use double date format like mimosa
-output_path_profile <- file.path(output_folder, paste0("cgmlst.profile.", update_label, "_", date_str, "_", date_str))
-output_path_meta <- file.path(output_folder, paste0("metadata.tsv.", update_label, "_", date_str, "_", date_str))
+# Derive sub (strip trailing numeric update suffix if present -- watcher passes e.g. s_aureus_1)
+sub_name <- update_label
+if (grepl("^.+_\\d+$", update_label)) {
+  sub_name <- sub("^(.*)_[0-9]+$", "\\1", update_label)
+}
+
+# Determine next sequence number for today for this sub
+existing <- list.files(output_folder, pattern = paste0("^cgmlst\\.profile\\.", sub_name, "_", date_str, "_\\d+$"))
+# Fallback counting if pattern matching failed
+if (is.null(existing)) existing <- character(0)
+seq_num <- length(existing) + 1
+
+# New naming: cgmlst.profile.<sub>_<YYYY-MM-DD>_<n>
+output_path_profile <- file.path(output_folder, paste0("cgmlst.profile.", sub_name, "_", date_str, "_", seq_num))
+output_path_meta <- file.path(output_folder, paste0("metadata.tsv.", sub_name, "_", date_str, "_", seq_num))
 
 cat("📤 Output folder:", output_folder, "\n")
 cat("📝 profile:", output_path_profile, "\n")

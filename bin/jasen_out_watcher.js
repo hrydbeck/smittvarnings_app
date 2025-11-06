@@ -7,7 +7,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const watchRoot = process.env.WATCH_DIR || path.resolve(repoRoot, 'jasen_out');
 const resultsBase = process.env.RESULTS_BASE || path.resolve(repoRoot, 'intermediate_files', 'profiles_for_reportree');
 const rScript = path.resolve(repoRoot, 'R', 'process_json.R');
-const checkIntervalMs = 30 * 1000;
+const checkIntervalMs = parseInt(process.env.CHECK_INTERVAL_MS || String(30 * 1000), 10);
 
 let knownFiles = new Set();
 let updateCount = 0;
@@ -15,25 +15,38 @@ let updateCount = 0;
 console.log(`👀 Watching for new JSON files under: ${watchRoot}`);
 console.log(`📥 Results base for R output: ${resultsBase}`);
 
+// Global safety: log uncaught exceptions/rejections to prevent the process from crashing
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception in watcher:', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection in watcher:', reason);
+});
+
 function findJsonFilesInSubfolders() {
-  if (!fs.existsSync(watchRoot)) {
-    console.log('❌ Watch root does not exist:', watchRoot);
+  try {
+    if (!fs.existsSync(watchRoot)) {
+      console.log('❌ Watch root does not exist:', watchRoot);
+      return [];
+    }
+    let subfolders = fs.readdirSync(watchRoot, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name);
+    subfolders = subfolders.sort();
+    const found = [];
+    for (const sub of subfolders) {
+      const folder = path.join(watchRoot, sub);
+      try {
+        let files = fs.readdirSync(folder).filter(f => f.toLowerCase().endsWith('.json'));
+        files = files.sort();
+        for (const f of files) found.push(path.join(folder, f));
+      } catch (err) {
+        console.error(`❌ Error reading subfolder ${sub}:`, err && err.message ? err.message : err);
+      }
+    }
+    return found;
+  } catch (err) {
+    console.error('❌ Error scanning watch root for JSON files:', err && err.message ? err.message : err);
     return [];
   }
-  let subfolders = fs.readdirSync(watchRoot, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name);
-  subfolders = subfolders.sort();
-  const found = [];
-  for (const sub of subfolders) {
-    const folder = path.join(watchRoot, sub);
-    try {
-      let files = fs.readdirSync(folder).filter(f => f.toLowerCase().endsWith('.json'));
-      files = files.sort();
-      for (const f of files) found.push(path.join(folder, f));
-    } catch (err) {
-      console.error(`❌ Error reading subfolder ${sub}:`, err.message);
-    }
-  }
-  return found;
 }
 
 function detectNewFiles() {
@@ -63,8 +76,31 @@ function runRScriptForFiles(files) {
     const rEnv = Object.assign({}, process.env, { TZ: process.env.TZ || 'UTC' });
     const rProc = spawn('Rscript', [rScript, ...args], { stdio: ['ignore', 'pipe', 'pipe'], env: rEnv });
 
-    rProc.stdout.on('data', d => process.stdout.write(`📤 R: ${d}`));
-    rProc.stderr.on('data', d => process.stderr.write(`⚠️ R: ${d}`));
+    // defensive: attach error handlers to child streams so a stream-level EBADF doesn't crash the watcher
+    if (rProc.stdout) {
+      rProc.stdout.on('data', d => {
+        try {
+          if (process.stdout && process.stdout.writable) process.stdout.write(`📤 R: ${d}`);
+        } catch (werr) {
+          console.error('Error writing R stdout to watcher stdout:', werr && werr.message ? werr.message : werr);
+        }
+      });
+      rProc.stdout.on('error', err => {
+        console.error('Error on R stdout stream:', err && err.message ? err.message : err);
+      });
+    }
+    if (rProc.stderr) {
+      rProc.stderr.on('data', d => {
+        try {
+          if (process.stderr && process.stderr.writable) process.stderr.write(`⚠️ R: ${d}`);
+        } catch (werr) {
+          console.error('Error writing R stderr to watcher stderr:', werr && werr.message ? werr.message : werr);
+        }
+      });
+      rProc.stderr.on('error', err => {
+        console.error('Error on R stderr stream:', err && err.message ? err.message : err);
+      });
+    }
     rProc.on('close', code => {
       console.log(`✅ Rscript exited with code ${code} for ${label}`);
       if (code === 0) {
@@ -91,5 +127,11 @@ function checkCycle() {
 
 console.log('⏳ Initial scan - starting check cycles...');
 knownFiles = new Set();
-setInterval(checkCycle, checkIntervalMs);
-try { if (process.stdin && !process.stdin.destroyed) process.stdin.resume(); } catch (e) {}
+setInterval(() => {
+  try {
+    checkCycle();
+  } catch (err) {
+    console.error('Error during check cycle:', err && err.stack ? err.stack : err);
+  }
+}, checkIntervalMs);
+// don't touch process.stdin — under nohup/daemonized runs this can lead to EBADF on some platforms
