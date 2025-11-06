@@ -22,3 +22,6 @@ yarn-error.log*
 logs/
 *.log
 .env
+
+# PID files created by demo/watch scripts (nohup/daemon helpers)
+*.pid
