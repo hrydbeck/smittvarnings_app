@@ -27,5 +27,4 @@ logs/
 *.pid
 
 # Local backups used for deterministic demos and manual restores
-backup_jasen_out/
 backups/
