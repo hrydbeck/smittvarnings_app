@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  watcher:
+    volumes:
+      - ./bin:/app/bin:delegated
+      - ./scripts:/app/scripts:delegated
+      - ./jasen_out:/app/jasen_out:delegated
+      - ./intermediate_files:/app/intermediate_files:delegated
+    environment:
+      - NODE_ENV=development
+    user: "${LOCAL_UID}:${LOCAL_GID}"
+    command: ["node", "bin/jasen_out_watcher.js", "--poll-interval", "1000"]
+
+  reportree-service:
+    volumes:
+      - ./intermediate_files:/data:delegated
+    user: "${LOCAL_UID}:${LOCAL_GID}"
