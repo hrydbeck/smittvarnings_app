@@ -20,6 +20,9 @@ import os
 from typing import List
 
 import numpy as np
+import os, sys
+# ensure project root is on sys.path so 'fast_profiles' package is importable
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from fast_profiles.lock import acquire_lock, release_lock
 
 
