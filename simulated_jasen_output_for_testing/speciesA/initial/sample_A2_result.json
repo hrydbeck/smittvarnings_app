@@ -5,7 +5,7 @@
     {
       "type": "cgmlst",
       "software": "mock",
-      "result": { "alleles": { "SACOL0001": 1, "SACOL0002": 2, "SACOL0003": 4 } }
+      "result": { "alleles": { "SACOL0001": 10, "SACOL0002": 20, "SACOL0003": 30 } }
     }
   ]
 }
