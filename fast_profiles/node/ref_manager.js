@@ -8,12 +8,29 @@ function usage() {
   process.exit(2);
 }
 
-const argv = require('minimist')(process.argv.slice(2));
+function parseArgs(argv) {
+  const out = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a.startsWith('--')) continue;
+    const key = a.replace(/^--+/, '');
+    const next = argv[i+1];
+    if (!next || next.startsWith('--')) {
+      out[key] = true;
+    } else {
+      out[key] = next;
+      i++;
+    }
+  }
+  return out;
+}
+
+const argv = parseArgs(process.argv.slice(2));
 const action = argv.action;
 const refDir = argv['ref-dir'];
 const newPath = argv.new;
-const threshold = argv.threshold || 10;
-const force = argv.force || false;
+const threshold = argv.threshold ? Number(argv.threshold) : 10;
+const force = argv.force === true || argv.force === 'true' || false;
 const ttl = parseInt(argv.ttl || '3600', 10);
 
 if (!action || !refDir) {
