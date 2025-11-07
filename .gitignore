@@ -28,3 +28,7 @@ logs/
 
 # Local backups used for deterministic demos and manual restores
 backups/
+
+# local jasen output backups (don't commit large sample JSONs)
+backup_jasen_out/
+real_jasen_out_for_testing/
