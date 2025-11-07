@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -8,6 +9,13 @@ const watchRoot = process.env.WATCH_DIR || path.resolve(repoRoot, 'jasen_out');
 const resultsBase = process.env.RESULTS_BASE || path.resolve(repoRoot, 'intermediate_files', 'profiles_for_reportree');
 const rScript = path.resolve(repoRoot, 'R', 'process_json.R');
 const checkIntervalMs = parseInt(process.env.CHECK_INTERVAL_MS || String(30 * 1000), 10);
+
+// CLI flags: --once or --check-once will run a single scan cycle and exit after
+// any spawned R processes finish. Useful for testing.
+const once = process.argv.includes('--once') || process.argv.includes('--check-once');
+
+// track active R child processes so --once can wait for them to finish
+const activeProcs = new Set();
 
 let knownFiles = new Set();
 let updateCount = 0;
@@ -75,6 +83,7 @@ function runRScriptForFiles(files) {
 
     const rEnv = Object.assign({}, process.env, { TZ: process.env.TZ || 'UTC' });
     const rProc = spawn('Rscript', [rScript, ...args], { stdio: ['ignore', 'pipe', 'pipe'], env: rEnv });
+      activeProcs.add(rProc);
 
     // defensive: attach error handlers to child streams so a stream-level EBADF doesn't crash the watcher
     if (rProc.stdout) {
@@ -103,9 +112,51 @@ function runRScriptForFiles(files) {
     }
     rProc.on('close', code => {
       console.log(`✅ Rscript exited with code ${code} for ${label}`);
+      activeProcs.delete(rProc);
+      // if running once and no active children remain, exit gracefully
+      if (once && activeProcs.size === 0) {
+        console.log('⏹ --once complete; no active R processes remain. Exiting.');
+        process.exit(0);
+      }
       if (code === 0) {
         filesInSub.forEach(f => knownFiles.add(f));
         console.log(`ℹ️ R processing finished for ${label}. Marked ${filesInSub.length} file(s) as processed.`);
+        // Try to find the produced cgmlst profile in the results folder for this subfolder.
+        try {
+          const outFolder = path.join(resultsBase, subfolder);
+          if (fs.existsSync(outFolder)) {
+            const profFiles = fs.readdirSync(outFolder).filter(fn => fn.startsWith('cgmlst.profile.'));
+            profFiles.sort((a,b) => {
+              const sa = fs.statSync(path.join(outFolder,a)).mtimeMs;
+              const sb = fs.statSync(path.join(outFolder,b)).mtimeMs;
+              return sa - sb;
+            });
+            if (profFiles.length > 0) {
+              const latest = path.join(outFolder, profFiles[profFiles.length - 1]);
+              console.log(`🔎 Found output profile: ${latest}. Running fast_profiles compare/append.`);
+              const nodeMgr = path.resolve(repoRoot, 'fast_profiles', 'node', 'ref_manager.js');
+              // run compare first
+              try {
+                const cmp = spawnSync('node', [nodeMgr, '--action', 'compare', '--ref-dir', path.resolve(repoRoot, 'fast_profiles', 'ref'), '--new', latest, '--threshold', process.env.FAST_THRESHOLD || '10'], { stdio: 'inherit' });
+                if (cmp.status === 0) {
+                  console.log('ℹ️ Compare finished OK, appending to reference');
+                  const app = spawnSync('node', [nodeMgr, '--action', 'append', '--ref-dir', path.resolve(repoRoot, 'fast_profiles', 'ref'), '--new', latest], { stdio: 'inherit' });
+                  if (app.status === 0) {
+                    console.log('✅ Append finished OK');
+                  } else {
+                    console.error('❌ Append failed with code', app.status);
+                  }
+                } else {
+                  console.log('ℹ️ Compare reported non-zero status; skipping append');
+                }
+              } catch (err) {
+                console.error('❌ Error running node ref_manager:', err && err.message ? err.message : err);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error while running fast_profiles integration:', err && err.message ? err.message : err);
+        }
       } else {
         console.error(`❌ Rscript failed for ${label} (exit ${code}). Files will remain unmarked and retried next cycle.`);
       }
