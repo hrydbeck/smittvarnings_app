@@ -21,6 +21,7 @@ import tempfile
 from typing import List
 
 import numpy as np
+from fast_profiles.lock import acquire_lock, release_lock
 
 
 def read_new_rows(path: str):
@@ -65,6 +66,11 @@ def main() -> int:
     if not os.path.exists(idx_path) or not os.path.exists(npy_path):
         print("Missing reference files in", args.ref_dir)
         return 2
+
+    # acquire exclusive lock before modifying reference
+    if not acquire_lock(args.ref_dir, timeout=int(os.environ.get('REF_LOCK_TIMEOUT', '30')), ttl=int(os.environ.get('REF_LOCK_TTL', '3600')), force=False):
+        print('Could not acquire lock on', args.ref_dir)
+        return 4
 
     with open(idx_path) as fh:
         index = json.load(fh)
@@ -125,6 +131,11 @@ def main() -> int:
         print(f"Appended {n_new} samples to {npy_path}")
         return 0
     finally:
+        # release lock and cleanup
+        try:
+            release_lock(args.ref_dir)
+        except Exception:
+            pass
         if os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)

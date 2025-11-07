@@ -21,6 +21,7 @@ import os
 from typing import List
 
 import numpy as np
+from fast_profiles.lock import acquire_lock, release_lock
 
 
 def collect_inputs(inputs_arg: List[str]) -> List[str]:
@@ -107,19 +108,30 @@ def main() -> int:
     out_npy = os.path.join(args.out_dir, "profiles.npy")
     out_index = os.path.join(args.out_dir, "profiles_index.json")
 
-    np.save(out_npy, arr)
-    index = {
-        "samples": ids,
-        "loci": loci,
-        "dtype": str(arr.dtype),
-        "shape": list(arr.shape),
-        "mappings": [{k:v for k,v in mp.items()} for mp in mappings]
-    }
-    with open(out_index, "w") as fh:
-        json.dump(index, fh)
+    # acquire exclusive lock while rebuilding
+    if not acquire_lock(args.out_dir, timeout=int(os.environ.get('REF_LOCK_TIMEOUT', '30')), ttl=int(os.environ.get('REF_LOCK_TTL', '3600')), force=False):
+        print('Could not acquire lock on', args.out_dir)
+        return 4
 
-    print(f"Rebuilt reference with {len(ids)} samples -> {out_npy}")
-    return 0
+    try:
+        np.save(out_npy, arr)
+        index = {
+            "samples": ids,
+            "loci": loci,
+            "dtype": str(arr.dtype),
+            "shape": list(arr.shape),
+            "mappings": [{k:v for k,v in mp.items()} for mp in mappings]
+        }
+        with open(out_index, "w") as fh:
+            json.dump(index, fh)
+
+        print(f"Rebuilt reference with {len(ids)} samples -> {out_npy}")
+        return 0
+    finally:
+        try:
+            release_lock(args.out_dir)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ import os
 from typing import List
 
 import numpy as np
+from fast_profiles.lock import acquire_lock, release_lock
 
 
 def read_tsv_rows(path: str) -> (List[str], List[List[str]]):
@@ -62,6 +63,11 @@ def main() -> int:
     if not os.path.exists(idx_path) or not os.path.exists(npy_path):
         print("Missing ref files in", args.ref_dir)
         return 2
+
+    # acquire lock for read (protects against concurrent append/rebuild)
+    if not acquire_lock(args.ref_dir, timeout=int(os.environ.get('REF_LOCK_TIMEOUT', '30')), ttl=int(os.environ.get('REF_LOCK_TTL', '3600')), force=False):
+        print('Could not acquire lock on', args.ref_dir)
+        return 4
 
     with open(idx_path) as fh:
         index = json.load(fh)
@@ -116,6 +122,11 @@ def main() -> int:
 
     if out_f:
         out_f.close()
+    # release lock
+    try:
+        release_lock(args.ref_dir)
+    except Exception:
+        pass
     return 0
 
 
