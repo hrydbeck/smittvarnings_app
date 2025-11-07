@@ -1,0 +1,1 @@
+{"samples": ["20_145_result", "20_146_result", "20_147_result", "21_151_result", "21_151_2_result"], "loci": ["locus1", "locus2", "locus3", "locus4", "locus5"], "dtype": "uint16", "shape": [5, 5], "mappings": [{"1": 1, "9": 2}, {"2": 1, "99": 2, "9": 3}, {"3": 1, "9": 2}, {"4": 1, "9": 2}, {"5": 1, "9": 2, "8": 3}]}

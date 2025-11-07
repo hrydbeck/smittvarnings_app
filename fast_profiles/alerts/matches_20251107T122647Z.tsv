@@ -1,0 +1,12 @@
+sampleA	sampleB	diffs	compared_loci	pct_diff
+20_145_result	20_145_result	0	5	0.00
+20_145_result	20_146_result	1	5	20.00
+20_145_result	20_147_result	1	5	20.00
+20_146_result	20_145_result	1	5	20.00
+20_146_result	20_146_result	0	4	0.00
+20_147_result	20_145_result	1	5	20.00
+20_147_result	20_147_result	0	5	0.00
+21_151_result	21_151_result	0	5	0.00
+21_151_result	21_151_2_result	1	5	20.00
+21_151_2_result	21_151_result	1	5	20.00
+21_151_2_result	21_151_2_result	0	5	0.00
