@@ -28,3 +28,9 @@ logs/
 
 # Local backups used for deterministic demos and manual restores
 backups/
+
+# jasen backup folder we don't want tracked; there is a copy moved to
+# real_jasen_out_for_testing (kept out of git) and a small tracked simulated
+# dataset `simulated_jasen_output_for_testing/` used for demos.
+backup_jasen_out/
+real_jasen_out_for_testing/

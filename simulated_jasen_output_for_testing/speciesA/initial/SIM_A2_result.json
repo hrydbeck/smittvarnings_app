@@ -1,0 +1,9 @@
+{
+  "sample_id": "SIM_A2",
+  "species": "s_aureus",
+  "alleles": {
+    "SACOL0001": "10",
+    "SACOL0002": "20",
+    "SACOL0003": "30"
+  }
+}

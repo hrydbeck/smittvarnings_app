@@ -1,10 +1,22 @@
 #!/bin/bash
 set -eu pipefail
 
-# simulate jasen output by copying the backup s_aureus folder into jasen_out
+# simulate jasen output by copying a configured source folder into jasen_out
 # This script lives in `scripts/`, so BASEDIR is the repo root.
 BASEDIR="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$BASEDIR/backup_jasen_out/s_aureus_initial"
+# Load configuration if present (scripts/simulate_jasen_output.conf)
+CONF="$BASEDIR/scripts/simulate_jasen_output.conf"
+if [ -f "$CONF" ]; then
+  # shellcheck disable=SC1090
+  . "$CONF"
+fi
+
+# Defaults if config didn't set them
+: "${SRC_DIR:=./simulated_jasen_output_for_testing}"
+: "${SUBDIR:=s_aureus}"
+
+# Source can be e.g. ./simulated_jasen_output_for_testing/s_aureus_initial
+SRC="$BASEDIR/${SRC_DIR}/${SUBDIR}_initial"
 DST="$BASEDIR/jasen_out"
 
 if [ ! -d "$SRC" ]; then
