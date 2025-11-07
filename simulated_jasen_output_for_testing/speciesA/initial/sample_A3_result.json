@@ -1,0 +1,11 @@
+{
+  "sample_id": "SIM_A3",
+  "pipeline": { "analysis_profile": "staphylococcus_aureus" },
+  "typing_result": [
+    {
+      "type": "cgmlst",
+      "software": "mock",
+      "result": { "alleles": { "SACOL0001": 2, "SACOL0002": "LNF", "SACOL0003": 3 } }
+    }
+  ]
+}
